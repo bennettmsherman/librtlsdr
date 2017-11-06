@@ -1,0 +1,26 @@
+rtl-sdr
+turns your Realtek RTL2832 based DVB dongle into a SDR receiver
+======================================================================
+
+For more information see:
+http://sdr.osmocom.org/trac/wiki/rtl-sdr
+
+HOW TO BUILD AND INSTALL:
+1.) Using EasyInstall:
+chmod +x ./EasyInstall
+./EasyInstall
+
+2.) Manual Install
+* You'll need libusb-1.0-0-dev and cmake installed
+cd rtl-sdr/
+mkdir build
+cd build
+cmake ../ -DINSTALL_UDEV_RULES=ON -DDETACH_KERNEL_DRIVER=ON
+make
+sudo make install
+sudo ldconfig
+
+HOW TO UNINSTALL:
+cd rtl-sdr/build
+make
+sudo make uninstall
