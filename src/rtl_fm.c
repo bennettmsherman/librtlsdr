@@ -370,33 +370,33 @@ double log2(double n)
 /* MUL_MINUS_ONE: (a + j*b ) * -1 = -a + j * -b */
 /* MUL_MINUS_J:   (a + j*b ) * -j =  b + j * -a */
 #define MUL_PLUS_J_U8( X, J )	\
-    tmp = X[J]; \
-    X[J] = NEG_U8( X[J+1] ); \
-    X[J+1] = tmp
+	tmp = X[J]; \
+	X[J] = NEG_U8( X[J+1] ); \
+	X[J+1] = tmp
 
 #define MUL_MINUS_ONE_U8( X, J ) \
-    X[J] = NEG_U8( X[J] ); \
-    X[J+1] = NEG_U8( X[J+1] )
+	X[J] = NEG_U8( X[J] ); \
+	X[J+1] = NEG_U8( X[J+1] )
 
 #define MUL_MINUS_J_U8( X, J ) \
-    tmp = X[J]; \
-    X[J] = X[J+1]; \
-    X[J+1] = NEG_U8( tmp )
+	tmp = X[J]; \
+	X[J] = X[J+1]; \
+	X[J+1] = NEG_U8( tmp )
 
 
 #define MUL_PLUS_J_INT( X, J )	\
-    tmp = X[J]; \
-    X[J] = - X[J+1]; \
-    X[J+1] = tmp
+	tmp = X[J]; \
+	X[J] = - X[J+1]; \
+	X[J+1] = tmp
 
 #define MUL_MINUS_ONE_INT( X, J ) \
-    X[J] = - X[J]; \
-    X[J+1] = - X[J+1]
+	X[J] = - X[J]; \
+	X[J+1] = - X[J+1]
 
 #define MUL_MINUS_J_INT( X, J ) \
-    tmp = X[J]; \
-    X[J] = X[J+1]; \
-    X[J+1] = -tmp
+	tmp = X[J]; \
+	X[J] = X[J+1]; \
+	X[J+1] = -tmp
 
 
 void rotate16_90(int16_t *buf, uint32_t len)
@@ -1748,8 +1748,12 @@ int main(int argc, char **argv)
 			demod.rate_out = (uint32_t)atofs(optarg);
 			break;
 		case 'r':
-			output.rate = (int)atofs(optarg);
-			demod.rate_out2 = (int)atofs(optarg);
+			if ((int)atofs(optarg) > 0)
+			{
+				// Only resample if the resample param > 0
+				output.rate = (int)atofs(optarg);
+				demod.rate_out2 = (int)atofs(optarg);   
+			}
 			break;
 		case 'o':
 			fprintf(stderr, "Warning: -o is very buggy\n");
@@ -1765,8 +1769,12 @@ int main(int argc, char **argv)
 			}
 			break;
 		case 'p':
-			dongle.ppm_error = atoi(optarg);
-			custom_ppm = 1;
+            // Ignore if the ppm param < 0
+            if (atoi(optarg) >= 0)
+            {
+                dongle.ppm_error = atoi(optarg);
+                custom_ppm = 1;
+            }
 			break;
 		case 'E':
 			if (strcmp("edge",  optarg) == 0) {
@@ -1778,7 +1786,7 @@ int main(int argc, char **argv)
 			if (strcmp("deemp",  optarg) == 0) {
 				demod.deemph = 1;}
 			if (strcmp("direct",  optarg) == 0) {
-				dongle.direct_sampling = 1;}
+				dongle.direct_sampling = 2;}
 			if (strcmp("offset",  optarg) == 0) {
 				dongle.offset_tuning = 1;}
 			if (strcmp("rtlagc", optarg) == 0 || strcmp("agc", optarg) == 0) {
@@ -1788,8 +1796,12 @@ int main(int argc, char **argv)
 			demod.rdc_block_const = atoi(optarg);
 			break;
 		case 'F':
-			demod.downsample_passes = 1;  /* truthy placeholder */
-			demod.comp_fir_size = atoi(optarg);
+			// A value of -1 is ignored
+			if (atoi(optarg) >= 0)
+			{
+				demod.downsample_passes = 1;  /* truthy placeholder */
+				demod.comp_fir_size = atoi(optarg);
+			}
 			break;
 		case 'A':
 			if (strcmp("std",  optarg) == 0) {
@@ -1813,14 +1825,7 @@ int main(int argc, char **argv)
 				demod.mode_demod = &lsb_demod;}
 			if (strcmp("wbfm",  optarg) == 0 || strcmp("wfm",  optarg) == 0) {
 				controller.wb_mode = 1;
-				demod.mode_demod = &fm_demod;
-				demod.rate_in = 170000;
-				demod.rate_out = 170000;
-				demod.rate_out2 = 32000;
-				demod.custom_atan = 1;
-				//demod.post_downsample = 4;
-				demod.deemph = 1;
-				demod.squelch_level = 0;}
+				demod.mode_demod = &fm_demod; }
 			break;
 		case 'c':
 			if (strcmp("us",  optarg) == 0)
